@@ -1,0 +1,4 @@
+spring:
+  elasticsearch:
+    rest:
+      uris: http://168.168.8.11:9200, http://168.168.8.12:9200 #Elasticsearch的地址，如果为集群可以以逗号（,）隔开

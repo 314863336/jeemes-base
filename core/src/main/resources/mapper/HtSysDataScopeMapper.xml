@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huitai.core.system.dao.HtSysDataScopeDao">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.huitai.core.system.entity.HtSysDataScope">
+        <id column="id" property="id" />
+        <result column="role_id" property="roleId" />
+        <result column="office_id" property="officeId" />
+        <result column="type" property="type" />
+    </resultMap>
+
+    <select id="findDataScopesOfRole" resultType="java.lang.String">
+        SELECT distinct a.office_id
+        FROM ht_sys_data_scope a
+        where a.role_id =  #{id}
+    </select>
+
+</mapper>

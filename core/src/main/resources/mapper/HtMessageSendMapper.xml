@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huitai.core.message.dao.HtMessageSendDao">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.huitai.core.message.entity.HtMessageSend">
+        <id column="id" property="id" />
+        <result column="msg_type" property="msgType" />
+        <result column="msg_title" property="msgTitle" />
+        <result column="msg_content" property="msgContent" />
+        <result column="receive_user" property="receiveUser" />
+        <result column="send_user" property="sendUser" />
+        <result column="send_date" property="sendDate" />
+        <result column="push_status" property="pushStatus" />
+        <result column="push_number" property="pushNumber" />
+        <result column="push_return_code" property="pushReturnCode" />
+        <result column="push_return_content" property="pushReturnContent" />
+        <result column="remarks" property="remarks" />
+        <result column="user_name" property="receiveUserName" />
+    </resultMap>
+
+    <select id="findHtMessageSendList" parameterType="com.huitai.common.utils.Page" resultMap="BaseResultMap">
+        SELECT a.id,a.msg_type,a.msg_title,a.receive_user,a.send_user,a.send_date,a.push_status,a.push_number,a.remarks,b.user_name
+        FROM ht_message_send a
+        LEFT JOIN ht_sys_user b on a.receive_user = b.id
+        <if test="params.msgTitle != null and params.msgTitle != ''">
+            AND a.msg_title LIKE CONCAT('%', #{params.msgTitle}, '%')
+        </if>
+        <if test="params.sendUser != null and params.sendUser != ''">
+            AND a.send_user = #{params.sendUser}
+        </if>
+        order by a.send_date desc
+    </select>
+
+</mapper>

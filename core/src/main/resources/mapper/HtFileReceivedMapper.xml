@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huitai.core.file.dao.HtFileReceivedDao">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.huitai.core.file.entity.HtFileReceived">
+        <id column="id" property="id" />
+        <result column="file_info_id" property="fileInfoId" />
+        <result column="from_user_id" property="fromUserId" />
+        <result column="to_user_id" property="toUserId" />
+        <result column="status" property="status" />
+        <result column="remarks" property="remarks" />
+        <result column="create_by" property="createBy" />
+        <result column="create_date" property="createDate" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_date" property="updateDate" />
+    </resultMap>
+
+    <resultMap id="ShareListResultMap" type="com.huitai.core.file.entity.HtFileReceived">
+        <id column="id" property="id" />
+        <result column="file_info_id" property="fileInfoId" />
+        <result column="from_user_id" property="fromUserId" />
+        <result column="from_user_name" property="fromUserName" />
+        <result column="to_user_id" property="toUserId" />
+        <result column="status" property="status" />
+        <result column="remarks" property="remarks" />
+        <result column="create_by" property="createBy" />
+        <result column="create_date" property="createDate" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_date" property="updateDate" />
+        <association property="htFileInfo" resultMap="HtFileInfoResultMap">
+        </association>
+    </resultMap>
+
+    <resultMap id="HtFileInfoResultMap" type="com.huitai.core.file.entity.HtFileInfo">
+        <id column="f_id" property="id" />
+        <result column="f_file_name" property="fileName" />
+        <result column="f_file_type" property="fileType" />
+        <result column="f_address" property="address" />
+    </resultMap>
+
+    <select id="findToMeList" parameterType="com.huitai.common.utils.Page" resultMap="ShareListResultMap">
+        SELECT distinct a.id, a.file_info_id, a.from_user_id, a.remarks, a.create_date,
+        f.file_name as f_file_name, f.address as f_address,f.file_type as f_file_type, u.user_name as from_user_name
+        FROM ht_file_received a
+        LEFT JOIN ht_file_info f ON a.file_info_id = f.id
+        LEFT JOIN ht_sys_user u ON a.from_user_id = u.id
+        where 1=1
+        <if test="params.htFileInfo.fileName != null and params.htFileInfo.fileName != ''">
+            and f.file_name like CONCAT('%', #{params.htFileInfo.fileName}, '%')
+        </if>
+
+        <if test="params.toUserId != null and params.toUserId != ''">
+            and a.to_user_id = #{params.toUserId}
+        </if>
+        order by a.create_date desc
+    </select>
+
+</mapper>

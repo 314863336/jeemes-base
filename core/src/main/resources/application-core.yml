@@ -1,0 +1,36 @@
+file:
+  http:
+    delete: http://168.168.8.150:9091/jeemes/file/delete
+
+spring:
+  quartz:
+    # quartz 相关属性配置
+    properties:
+      org:
+        quartz:
+          scheduler:
+            #默认或是自己改名字都行
+            instanceName: clusteredScheduler
+            #如果使用集群，instanceId必须唯一，设置成AUTO
+            instanceId: AUTO
+          jobStore:
+            #存储方式使用JobStoreTX，也就是数据库
+            class: org.quartz.impl.jdbcjobstore.JobStoreTX
+            driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+            #数据库中quartz表的表名前缀
+            tablePrefix: QRTZ_
+            #是否使用集群（如果项目只部署到 一台服务器，就不用了）
+            isClustered: false
+            clusterCheckinInterval: 10000
+            #使用自己的配置文件
+            useProperties: false
+          threadPool:
+            class: org.quartz.simpl.SimpleThreadPool
+            threadCount: 10
+            threadPriority: 5
+            threadsInheritContextClassLoaderOfInitializingThread: true
+          jobListener:
+            NAME:
+              class: com.huitai.core.listener.MyJobListener
+    #数据库方式
+    job-store-type: jdbc

@@ -1,0 +1,100 @@
+spring:
+  profiles:
+    include: common, core, bpm, file, search
+  datasource:
+    dynamic:
+      primary: master #设置默认的数据源或者数据源组,默认值即为master
+      datasource:
+        master:
+          driver-class-name: com.mysql.jdbc.Driver
+          username: root
+          password: 123456
+          url: jdbc:mysql://168.168.8.252:3306/jeemes_base?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=GMT%2B8&characterEncoding=UTF-8&nullCatalogMeansCurrent=true
+          #          driver-class-name: oracle.jdbc.OracleDriver
+          #          username: tyj
+          #          password: tyj
+          #          url: jdbc:oracle:thin:@168.168.8.170:1521/orcl
+          druid:
+            #拦截器配置
+            filter:
+              stat:
+                enabled: true
+                log-slow-sql: true
+                slow-sql-millis: 2000
+              wall:
+                config:
+                  delete-allow: false
+                  drop-table-allow: false
+                enabled: true
+          filters: stat,wall,log4j
+          initialSize: 5
+          logSlowSql: true
+          maxActive: 20
+          maxWait: 60000
+          minEvictableIdleTimeMillis: 300000
+          minIdle: 5
+          testOnBorrow: false
+          testOnReturn: false
+          testWhileIdle: true
+          timeBetweenEvictionRunsMillis: 60000
+          #type: com.alibaba.druid.pool.DruidDataSource
+          validationQuery: SELECT 1 FROM DUAL
+        slave_1:
+          driver-class-name: com.mysql.jdbc.Driver
+          username: root
+          password: 123456
+          url: jdbc:mysql://168.168.8.252:3306/jeemes_base?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=GMT%2B8&characterEncoding=UTF-8&nullCatalogMeansCurrent=true
+          #          driver-class-name: oracle.jdbc.OracleDriver
+          #          username: tyj
+          #          password: tyj
+          #          url: jdbc:oracle:thin:@168.168.8.170:1521/orcl
+          druid:
+            #拦截器配置
+            filter:
+              stat:
+                enabled: true
+                log-slow-sql: true
+                slow-sql-millis: 2000
+              wall:
+                config:
+                  delete-allow: false
+                  drop-table-allow: false
+                enabled: true
+          filters: stat,wall,log4j
+          initialSize: 5
+          logSlowSql: true
+          maxActive: 20
+          maxWait: 60000
+          minEvictableIdleTimeMillis: 300000
+          minIdle: 5
+          testOnBorrow: false
+          testOnReturn: false
+          testWhileIdle: true
+          timeBetweenEvictionRunsMillis: 60000
+          #type: com.alibaba.druid.pool.DruidDataSource
+          validationQuery: SELECT 1 FROM DUAL
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+  # spring国际化的页面值i18n
+  messages:
+    basename: i18n.language
+  # 邮箱设置
+  mail:
+    host: smtp.qq.com
+    username: 1455123710@qq.com #发送人邮箱
+    password: jwjpfzzbanlffide #发送人邮箱授权码
+    default-encoding: utf-8
+    nickname: 慧泰 #发送人昵称
+
+license:
+  subject: 慧泰智能 #证书名称
+  licensePath: D:/license #证书所在的位置
+
+#日志配置
+logging:
+  config: classpath:log4j2-spring.xml #日志配置，若不指定默认为log4j2-spring.xml
+  level:
+    dao: debug
+    org:
+      mybatis: debug

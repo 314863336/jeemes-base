@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huitai.core.system.dao.HtSysOfficeDao">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.huitai.core.system.entity.HtSysOffice">
+        <id column="id" property="id" />
+        <result column="office_code" property="officeCode" />
+        <result column="company_id" property="companyId" />
+        <result column="parent_id" property="parentId" />
+        <result column="parent_ids" property="parentIds" />
+        <result column="tree_leaf" property="treeLeaf" />
+        <result column="tree_level" property="treeLevel" />
+        <result column="tree_sort" property="treeSort" />
+        <result column="office_name" property="officeName" />
+        <result column="full_name" property="fullName" />
+        <result column="office_type" property="officeType" />
+        <result column="leader" property="leader" />
+        <result column="phone" property="phone" />
+        <result column="address" property="address" />
+        <result column="zip_code" property="zipCode" />
+        <result column="email" property="email" />
+        <result column="status" property="status" />
+        <result column="remarks" property="remarks" />
+        <result column="create_by" property="createBy" />
+        <result column="create_date" property="createDate" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_date" property="updateDate" />
+        <result column="parent_name" property="parentName" />
+        <result column="company_name" property="companyName" />
+    </resultMap>
+
+    <select id="getOfficeById" resultMap="BaseResultMap">
+        SELECT A.id, A.office_code, A.company_id, A.parent_id, A.parent_ids, A.tree_leaf, A.tree_level,
+        A.tree_sort, A.office_name, A.full_name, A.office_type, A.leader, A.phone, A.address, A.zip_code,
+        A.email, A.status, A.remarks, A.create_by, A.create_date, A.update_by, A.update_date,
+        B.office_name as parent_name, C.office_name as company_name
+        FROM ht_sys_office A
+        LEFT JOIN ht_sys_office B ON A.parent_id = B.id
+        LEFT JOIN ht_sys_office C ON A.company_id = C.id
+        where A.id =  #{id}
+    </select>
+
+    <select id="findOfficeList" resultMap="BaseResultMap" parameterType="com.huitai.core.system.entity.HtSysOffice">
+        SELECT A.id, A.office_code, A.company_id, A.parent_id, A.parent_ids, A.tree_leaf, A.tree_level,
+        A.tree_sort, A.office_name, A.full_name, A.office_type, A.leader, A.phone, A.address, A.zip_code,
+        A.email, A.status, A.remarks, A.create_by, A.create_date, A.update_by, A.update_date,
+        B.office_name as parent_name, C.office_name as company_name
+        FROM ht_sys_office A
+        LEFT JOIN ht_sys_office B ON A.parent_id = B.id
+        LEFT JOIN ht_sys_office C ON A.company_id = C.id
+        where 1=1
+        <if test="parentId != null">
+            and A.parent_id = #{parentId}
+        </if>
+        <if test="officeCode != null">
+            and A.office_code like concat(concat('%',#{officeCode}),'%')
+        </if>
+        <if test="officeType != null">
+            and A.office_type = #{officeType}
+        </if>
+        <if test="officeName != null">
+            and A.office_name like concat(concat('%',#{officeName}),'%')
+        </if>
+        <if test="params.companyId != null and params.companyId != ''">
+            AND ((A.parent_ids like CONCAT(#{params.parentIds}, '%')) or A.id = #{params.companyId})
+        </if>
+        ORDER BY A.tree_sort ASC
+    </select>
+
+</mapper>

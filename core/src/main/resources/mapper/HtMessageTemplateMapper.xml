@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huitai.core.message.dao.HtMessageTemplateDao">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.huitai.core.message.entity.HtMessageTemplate">
+        <id column="id" property="id" />
+        <result column="tpl_title" property="tplTitle" />
+        <result column="tpl_code" property="tplCode" />
+        <result column="tpl_type" property="tplType" />
+        <result column="tpl_content" property="tplContent" />
+        <result column="status" property="status" />
+        <result column="remarks" property="remarks" />
+        <result column="create_by" property="createBy" />
+        <result column="create_date" property="createDate" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_date" property="updateDate" />
+    </resultMap>
+
+</mapper>

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huitai.core.system.dao.HtSysMenuDao">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.huitai.core.system.entity.HtSysMenu">
+        <id column="id" property="id" />
+        <result column="menu_code" property="menuCode" />
+        <result column="menu_name" property="menuName" />
+        <result column="menu_type" property="menuType" />
+        <result column="parent_id" property="parentId" />
+        <result column="parent_ids" property="parentIds" />
+        <result column="tree_level" property="treeLevel" />
+        <result column="tree_leaf" property="treeLeaf" />
+        <result column="tree_sort" property="treeSort" />
+        <result column="menu_href" property="menuHref" />
+        <result column="menu_target" property="menuTarget" />
+        <result column="menu_icon" property="menuIcon" />
+        <result column="permission" property="permission" />
+        <result column="weight" property="weight" />
+        <result column="is_show" property="isShow" />
+        <result column="status" property="status" />
+        <result column="remarks" property="remarks" />
+        <result column="create_by" property="createBy" />
+        <result column="create_date" property="createDate" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_date" property="updateDate" />
+        <result column="layout_type" property="layoutType" />
+    </resultMap>
+
+    <resultMap id="ParentResultMap" type="com.huitai.core.system.entity.HtSysMenu">
+        <id column="p_id" property="id" />
+        <result column="p_menu_code" property="menuCode" />
+        <result column="p_menu_name" property="menuName" />
+        <result column="p_parent_id" property="parentId" />
+        <result column="p_parent_ids" property="parentIds" />
+    </resultMap>
+
+    <resultMap id="DetailMenuResultMap" type="com.huitai.core.system.entity.HtSysMenu">
+        <id column="id" property="id" />
+        <result column="menu_code" property="menuCode" />
+        <result column="menu_name" property="menuName" />
+        <result column="menu_type" property="menuType" />
+        <result column="parent_id" property="parentId" />
+        <result column="parent_ids" property="parentIds" />
+        <result column="tree_level" property="treeLevel" />
+        <result column="tree_leaf" property="treeLeaf" />
+        <result column="tree_sort" property="treeSort" />
+        <result column="menu_href" property="menuHref" />
+        <result column="menu_target" property="menuTarget" />
+        <result column="menu_icon" property="menuIcon" />
+        <result column="permission" property="permission" />
+        <result column="weight" property="weight" />
+        <result column="is_show" property="isShow" />
+        <result column="status" property="status" />
+        <result column="remarks" property="remarks" />
+        <result column="create_by" property="createBy" />
+        <result column="create_date" property="createDate" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_date" property="updateDate" />
+        <result column="layout_type" property="layoutType" />
+        <association property="parentMenu" resultMap="ParentResultMap">
+        </association>
+    </resultMap>
+
+    <select id="getMenuById" resultMap="DetailMenuResultMap">
+        SELECT a.*, b.id as p_id, b.menu_code as p_menu_code, b.menu_name as p_menu_name, b.parent_id as p_parent_id, b.parent_ids as p_parent_ids
+        FROM ht_sys_menu a
+        LEFT JOIN ht_sys_menu b ON a.parent_id = b.id
+        where a.id =  #{id}
+    </select>
+
+    <select id="findPermissionsOfUser" resultMap="DetailMenuResultMap">
+        SELECT distinct a.permission
+        FROM ht_sys_menu a
+        LEFT JOIN ht_sys_role_menu b ON b.menu_id = a.id
+        LEFT JOIN ht_sys_post_role c ON c.role_id = b.role_id
+        LEFT JOIN ht_sys_user_post d ON d.post_id = c.post_id
+        where a.permission is not null
+        <if test="userId != null and userId != ''">
+            and d.user_id =  #{userId}
+        </if>
+
+    </select>
+
+    <select id="findUserMenuList" resultMap="BaseResultMap">
+        SELECT distinct a.*
+        FROM ht_sys_menu a
+        LEFT JOIN ht_sys_role_menu b ON b.menu_id = a.id
+        LEFT JOIN ht_sys_post_role c ON c.role_id = b.role_id
+        LEFT JOIN ht_sys_user_post d ON d.post_id = c.post_id
+        where 1=1
+        <if test="menuType != null and menuType != ''">
+            and a.menu_type in
+            <foreach item="item" index="index" collection="menuType" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="userId != null and userId != ''">
+            and d.user_id =  #{userId}
+        </if>
+        order by a.tree_sort asc
+    </select>
+
+</mapper>

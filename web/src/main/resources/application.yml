@@ -1,0 +1,71 @@
+#======================================#
+#========== Server settings ===========#
+#======================================#
+
+server:
+  port: 9098
+  servlet:
+    context-path: /jeemes
+    session:
+      timeout: 1000
+  tomcat:
+    uri-encoding: UTF-8
+
+spring:
+  #热部署，如果不用注释掉即可
+  devtools:
+    restart:
+      # true:开启热部署 false:关闭
+      enabled: true
+      #设置重启的目录
+      additional-paths: src/main/java
+      #classpath目录下的WEB-INF文件夹内容修改不重启
+      exclude: WEB-INF/**
+  application:
+    name: JEEMES
+  profiles:
+    active: dev
+
+mybatis-plus:
+  configuration:
+    #二级缓存
+    cache-enabled: false
+    #mybatis-plus配置控制台打印完整带参数SQL语句
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    #是否开启自动驼峰命名规则（camel case）映射
+    map-underscore-to-camel-case: true
+  global-config:
+    #是否使用下划线命名
+    db-column-underline: true
+    #字段策略 0:"忽略判断",1:"非 NULL 判断",2:"非空判断"
+    field-strategy: 0
+    #主键类型
+    id-type: 0
+    #刷新mapper 调试神器
+    refresh-mapper: true
+  mapper-locations: classpath*:/mapper/**/*.xml
+  typeAliasesPackage: com.huitai.**.entity
+
+#======================================#
+#========== Springsecurity settings ===========#
+#======================================#
+security:
+  web:
+    # 不拦截的地址
+    ignorings: /captcha,/checkIp,/images/**,/swagger-resources/**,/webjars/**,/v2/**,/swagger-ui.html/**,/receive/**,/lanqu/singleSignOn/**,/public/**,/flw/manage/deploy/add
+  cors:
+    # 是否支持跨域, 不可为空
+    allowed: true
+    # 跨域允许的域名 多个中间添加, 默认所有
+    allowedOrigins:
+    # 跨域允许的方法 多个中间添加, 默认所有
+    allowedMethods:
+    # 跨域允许的header 多个中间添加, 默认所有
+    allowedHeaders:
+    # 跨域url 多个中间添加,
+    path: /**
+  # 登录令牌过期时间 单位 秒
+  token:
+    expired: 7200
+
+

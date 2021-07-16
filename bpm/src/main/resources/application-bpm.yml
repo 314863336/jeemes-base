@@ -1,0 +1,5 @@
+camunda:
+  bpm:
+    database:
+      schema-update: true
+      jdbc-batch-processing: false

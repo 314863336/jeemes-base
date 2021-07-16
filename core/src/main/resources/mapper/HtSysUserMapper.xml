@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huitai.core.system.dao.HtSysUserDao">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.huitai.core.system.entity.HtSysUser">
+        <id column="id" property="id" />
+        <result column="login_code" property="loginCode" />
+        <result column="company_id" property="companyId" />
+        <result column="dept_id" property="deptId" />
+        <result column="user_name" property="userName" />
+        <result column="password" property="password" />
+        <result column="email" property="email" />
+        <result column="mobile" property="mobile" />
+        <result column="phone" property="phone" />
+        <result column="sex" property="sex" />
+        <result column="sex_name" property="sexName" />
+        <result column="avatar" property="avatar" />
+        <result column="sign" property="sign" />
+        <result column="wx_openid" property="wxOpenid" />
+        <result column="user_type" property="userType" />
+        <result column="status" property="status" />
+        <result column="remarks" property="remarks" />
+        <result column="create_by" property="createBy" />
+        <result column="create_date" property="createDate" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_date" property="updateDate" />
+        <result column="company_name" property="companyName" />
+        <result column="office_name" property="officeName" />
+    </resultMap>
+
+    <resultMap id="CompanyResultMap" type="com.huitai.core.system.entity.HtSysOffice">
+        <id column="c_id" property="id" />
+        <result column="c_office_code" property="officeCode" />
+        <result column="c_office_name" property="officeName" />
+    </resultMap>
+
+    <resultMap id="DeptResultMap" type="com.huitai.core.system.entity.HtSysOffice">
+        <id column="d_id" property="id" />
+        <result column="d_office_code" property="officeCode" />
+        <result column="d_office_name" property="officeName" />
+    </resultMap>
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="DetailUserResultMap" type="com.huitai.core.system.entity.HtSysUser">
+        <id column="id" property="id" />
+        <result column="login_code" property="loginCode" />
+        <result column="company_id" property="companyId" />
+        <result column="dept_id" property="deptId" />
+        <result column="user_name" property="userName" />
+        <result column="password" property="password" />
+        <result column="email" property="email" />
+        <result column="mobile" property="mobile" />
+        <result column="phone" property="phone" />
+        <result column="sex" property="sex" />
+        <result column="avatar" property="avatar" />
+        <result column="sign" property="sign" />
+        <result column="wx_openid" property="wxOpenid" />
+        <result column="user_type" property="userType" />
+        <result column="status" property="status" />
+        <result column="remarks" property="remarks" />
+        <result column="create_by" property="createBy" />
+        <result column="create_date" property="createDate" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_date" property="updateDate" />
+        <association property="company" resultMap="CompanyResultMap">
+        </association>
+        <association property="dept" resultMap="DeptResultMap">
+        </association>
+    </resultMap>
+
+    <select id="getUserById" resultMap="DetailUserResultMap">
+        SELECT a.*, c.id as c_id, c.office_code as c_office_code, c.office_name as c_office_name, d.id as d_id, d.office_code as d_office_code, d.office_name as d_office_name
+        FROM ht_sys_user a
+        LEFT JOIN ht_sys_office c ON a.company_id = c.id
+        LEFT JOIN ht_sys_office d ON a.dept_id = d.id
+        where a.id =  #{id}
+    </select>
+
+    <select id="findHtSysUserList" parameterType="com.huitai.common.utils.Page" resultMap="DetailUserResultMap">
+        SELECT a.*, c.id as c_id, c.office_code as c_office_code, c.office_name as c_office_name, d.id as d_id, d.office_code as d_office_code, d.office_name as d_office_name
+        FROM ht_sys_user a
+        LEFT JOIN ht_sys_office c ON a.company_id = c.id
+        LEFT JOIN ht_sys_office d ON a.dept_id = d.id
+        <if test="extraParams.postId != null and extraParams.postId != ''">
+            LEFT JOIN ht_sys_user_post e ON e.user_id = a.id
+        </if>
+        where 1=1
+        <if test="params.loginCode != null and params.loginCode != ''">
+            AND a.login_code LIKE CONCAT(CONCAT('%', #{params.loginCode}), '%')
+        </if>
+        <if test="params.userName != null and params.userName != ''">
+            AND a.user_name LIKE CONCAT(CONCAT('%', #{params.userName}), '%')
+        </if>
+        <if test="params.phone != null and params.phone != ''">
+            AND a.phone LIKE CONCAT(CONCAT('%', #{params.phone}), '%')
+        </if>
+        <if test="params.mobile != null and params.mobile != ''">
+            AND a.mobile LIKE CONCAT(CONCAT('%', #{params.mobile}), '%')
+        </if>
+        <if test="params.status != null and params.status != ''">
+            AND a.status = #{params.status}
+        </if>
+        <if test="params.userType != null">
+            AND a.user_type = #{params.userType}
+        </if>
+        <if test="extraParams.userType != null">
+            AND a.user_type <![CDATA[ >= ]]> #{extraParams.userType} and a.user_type != 3
+        </if>
+        <if test="extraParams.userTypeLe != null">
+            AND a.user_type <![CDATA[ <= ]]> #{extraParams.userTypeLe} and a.user_type != 3
+        </if>
+        <if test="extraParams.postId != null and extraParams.postId != ''">
+            AND e.post_id = #{extraParams.postId}
+        </if>
+        <if test="extraParams.companyId != null and extraParams.companyId != ''">
+            AND ((c.parent_ids like CONCAT(#{extraParams.parentIds}, '%') AND c.office_type='0') or c.id = #{extraParams.companyId})
+        </if>
+        <if test="extraParams.deptId != null and extraParams.deptId != ''">
+            AND ((d.parent_ids like CONCAT(#{extraParams.parentIds}, '%') AND d.office_type='1') or d.id = #{extraParams.deptId})
+        </if>
+    </select>
+
+    <select id="selectListByParams" resultMap="BaseResultMap">
+        SELECT a.*, c.office_name as company_name, d.office_name, e.dict_label as sex_name
+        FROM ht_sys_user a
+        LEFT JOIN ht_sys_office c ON a.company_id = c.id
+        LEFT JOIN ht_sys_office d ON a.dept_id = d.id
+        LEFT JOIN ht_sys_dict_data e ON a.sex = e.dict_value and e.dict_type = 'sys_sex'
+        where 1=1
+        <if test="params.loginCode != null and params.loginCode != ''">
+            AND a.login_code LIKE CONCAT(CONCAT('%', #{params.loginCode}), '%')
+        </if>
+        <if test="params.userName != null and params.userName != ''">
+            AND a.user_name LIKE CONCAT(CONCAT('%', #{params.userName}), '%')
+        </if>
+        <if test="params.phone != null and params.phone != ''">
+            AND a.phone LIKE CONCAT(CONCAT('%', #{params.phone}), '%')
+        </if>
+        <if test="params.mobile != null and params.mobile != ''">
+            AND a.mobile LIKE CONCAT(CONCAT('%', #{params.mobile}), '%')
+        </if>
+        <if test="params.status != null and params.status != ''">
+            AND a.status = #{params.status}
+        </if>
+        <if test="params.userType != null">
+            AND a.user_type = #{params.userType}
+        </if>
+    </select>
+
+    <select id="pageByPosts" resultMap="BaseResultMap">
+        SELECT DISTINCT a.*
+        FROM ht_sys_user a
+        LEFT JOIN ht_sys_user_post b ON a.id = b.user_id
+        LEFT JOIN ht_sys_post c ON c.id = b.post_id
+        <where>
+            <if test="posts != null and posts.length > 0">
+                c.post_code IN
+                <foreach collection="posts" item="postCode"  open="(" separator="," close=")">
+                    #{postCode}
+                </foreach>
+            </if>
+            <if test="htSysUser.loginCode != null and htSysUser.loginCode != ''">
+                AND a.login_code LIKE CONCAT(CONCAT('%', #{htSysUser.loginCode}), '%')
+            </if>
+            <if test="htSysUser.userName != null and htSysUser.userName != ''">
+                AND a.user_name LIKE CONCAT(CONCAT('%', #{htSysUser.userName}), '%')
+            </if>
+        </where>
+    </select>
+
+</mapper>

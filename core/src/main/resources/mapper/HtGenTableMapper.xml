@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huitai.core.tools.dao.HtGenTableDao">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.huitai.core.tools.entity.HtGenTable">
+        <id column="id" property="id" />
+        <result column="table_name" property="tableName" />
+        <result column="table_fk_name" property="tableFkName" />
+        <result column="parent_table_name" property="parentTableName" />
+        <result column="parent_table_fk_name" property="parentTableFkName" />
+        <result column="tpl_category" property="tplCategory" />
+        <result column="comments" property="comments" />
+        <result column="package_name" property="packageName" />
+        <result column="module_name" property="moduleName" />
+        <result column="function_author" property="functionAuthor" />
+        <result column="code_base_dir" property="codeBaseDir" />
+        <result column="remarks" property="remarks" />
+        <result column="status" property="status" />
+        <result column="create_by" property="createBy" />
+        <result column="create_date" property="createDate" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_date" property="updateDate" />
+        <result column="sub_count" property="subCount" />
+    </resultMap>
+
+    <resultMap id="ColumnResultMap" type="com.huitai.core.tools.entity.HtGenTableColumn">
+        <id column="id" property="id" />
+        <result column="table_name" property="tableName" />
+        <result column="column_name" property="columnName" />
+        <result column="column_type" property="columnType" />
+        <result column="column_label" property="columnLabel" />
+        <result column="comments" property="comments" />
+        <result column="attr_name" property="attrName" />
+        <result column="attr_type" property="attrType" />
+        <result column="is_pk" property="isPk" />
+        <result column="is_null" property="isNull" />
+        <result column="is_edit" property="isEdit" />
+        <result column="show_type" property="showType" />
+        <result column="options" property="options" />
+    </resultMap>
+
+
+    <select id="selectPageByEntity" resultMap="BaseResultMap" databaseId="mysql">
+        select a.id, a.table_name, a.parent_table_name, a.parent_table_fk_name,
+        a.tpl_category, a.comments, a.package_name,
+        a.module_name, a.function_author, a.code_base_dir, a.remarks, a.status,
+        a.create_by, a.create_date, a.update_by, update_date,
+        (select count(1) from ht_gen_table where parent_table_name = a.table_name) as sub_count
+        from ht_gen_table a
+        where 1=1
+        and ( a.parent_table_name IS NULL OR a.parent_table_name = '' OR a.parent_table_name = #{htGenTable.parentTableName} )
+        <if test="htGenTable.tableName != null and htGenTable.tableName != ''">
+            and a.table_name like concat('%', #{htGenTable.tableName}, '%')
+        </if>
+        <if test="htGenTable.parentTableName != null and htGenTable.parentTableName != ''">
+            and a.parent_table_name = #{htGenTable.parentTableName}
+        </if>
+        <if test="htGenTable.comments != null and htGenTable.comments != ''">
+            and a.comments like concat('%', #{htGenTable.comments}, '%')
+        </if>
+        order by a.update_date desc
+        limit #{offset}, #{size}
+    </select>
+
+    <select id="selectCountByEntity" resultType="long" databaseId="mysql">
+        select count(1)
+        from ht_gen_table
+        where 1=1
+        and ( parent_table_name IS NULL OR parent_table_name = '' OR parent_table_name = #{htGenTable.parentTableName} )
+        <if test="htGenTable.tableName != null and htGenTable.tableName != ''">
+            and table_name like concat('%', #{htGenTable.tableName}, '%')
+        </if>
+        <if test="htGenTable.parentTableName != null and htGenTable.parentTableName != ''">
+            and parent_table_name = #{htGenTable.parentTableName}
+        </if>
+        <if test="htGenTable.comments != null and htGenTable.comments != ''">
+            and comments like concat('%', #{htGenTable.comments}, '%')
+        </if>
+    </select>
+
+    <select id="selectPageByEntity" resultMap="BaseResultMap" databaseId="oracle">
+        SELECT
+        *
+        FROM
+        (
+        SELECT
+            TMP_PAGE.*,
+            ROWNUM ROW_ID
+        FROM
+            (
+            select a.id, a.table_name, a.parent_table_name, a.parent_table_fk_name,
+            a.tpl_category, a.comments, a.package_name,
+            a.module_name, a.function_author, a.code_base_dir, a.remarks, a.status,
+            a.create_by, a.create_date, a.update_by, update_date,
+            (select count(1) from ht_gen_table where parent_table_name = a.table_name) as sub_count
+            from ht_gen_table a
+            where 1=1
+            and ( a.parent_table_name IS NULL OR a.parent_table_name = '' OR a.parent_table_name = #{htGenTable.parentTableName, jdbcType=VARCHAR} )
+            <if test="htGenTable.tableName != null and htGenTable.tableName != ''">
+                and a.table_name like concat(concat('%', #{htGenTable.tableName}), '%')
+            </if>
+            <if test="htGenTable.parentTableName != null and htGenTable.parentTableName != ''">
+                and a.parent_table_name = #{htGenTable.parentTableName}
+            </if>
+            <if test="htGenTable.comments != null and htGenTable.comments != ''">
+                and a.comments like concat(concat('%', #{htGenTable.comments}), '%')
+            </if>
+            order by a.update_date desc) TMP_PAGE
+            WHERE
+            ROWNUM &lt;= (#{offset}+ #{size})
+        )
+        WHERE
+        ROW_ID > #{offset}
+
+    </select>
+
+    <select id="selectCountByEntity" resultType="long" databaseId="oracle">
+        select count(1)
+        from ht_gen_table
+        where 1=1
+        and ( parent_table_name IS NULL OR parent_table_name = '' OR parent_table_name = #{htGenTable.parentTableName, jdbcType=VARCHAR} )
+        <if test="htGenTable.tableName != null and htGenTable.tableName != ''">
+            and table_name like concat(concat('%', #{htGenTable.tableName}), '%')
+        </if>
+        <if test="htGenTable.parentTableName != null and htGenTable.parentTableName != ''">
+            and parent_table_name = #{htGenTable.parentTableName}
+        </if>
+        <if test="htGenTable.comments != null and htGenTable.comments != ''">
+            and comments like concat(concat('%', #{htGenTable.comments}), '%')
+        </if>
+    </select>
+
+    <select id="selectTables" resultType="map" databaseId="mysql">
+        SELECT
+            t.table_name AS "tableName",
+            t.TABLE_COMMENT AS "comments"
+        FROM
+            information_schema.`TABLES` t
+        WHERE
+            t.TABLE_SCHEMA = ( SELECT DATABASE ( ) )
+            <if test="tableName != null and tableName !=''">
+                AND t.TABLE_NAME = #{tableName}
+            </if>
+        UNION ALL
+        SELECT
+            t.table_name AS "tableName",
+            t.VIEW_DEFINITION AS "comments"
+        FROM
+            information_schema.`VIEWS` t
+        WHERE
+            t.TABLE_SCHEMA = ( SELECT DATABASE ( ) )
+            <if test="tableName != null and tableName !=''">
+                AND t.TABLE_NAME = #{tableName}
+            </if>
+        ORDER BY
+            "tableName"
+    </select>
+
+    <select id="selectTables" resultType="map" databaseId="oracle">
+        SELECT
+            t.TABLE_NAME AS "tableName",
+            c.COMMENTS AS "comments"
+        FROM
+            user_tables t,
+            user_tab_comments c
+        WHERE
+            t.table_name = c.table_name
+            <if test="tableName != null and tableName !=''">
+            AND t.table_name = #{tableName}
+            </if>
+        UNION ALL
+        SELECT
+            t.VIEW_NAME AS "tableName",
+            c.COMMENTS AS "comments"
+        FROM
+            user_views t,
+            user_tab_comments c
+        WHERE
+            t.view_name = c.table_name
+            <if test="tableName != null and tableName !=''">
+            AND t.view_name = #{tableName}
+            </if>
+        ORDER BY
+            "tableName"
+    </select>
+
+    <select id="selectColumns" resultMap="ColumnResultMap" databaseId="mysql">
+        SELECT
+        t.COLUMN_NAME AS "column_name",
+        t.COLUMN_COMMENT AS "comments",
+        ( CASE WHEN t.IS_NULLABLE = 'YES' THEN '1' ELSE '0' END ) AS "is_null",
+        ( t.ORDINAL_POSITION * 10 ) AS "columnSort",
+        t.COLUMN_TYPE AS "column_type"
+    FROM
+        information_schema.`COLUMNS` t
+    WHERE
+        t.TABLE_SCHEMA = ( SELECT DATABASE ( ) )
+        AND t.TABLE_NAME = #{tableName}
+    ORDER BY
+        t.ORDINAL_POSITION
+    </select>
+
+    <select id="selectColumns" resultMap="ColumnResultMap" databaseId="oracle">
+        SELECT
+            t.COLUMN_NAME AS "column_name",
+            c.COMMENTS AS "comments",
+            ( CASE WHEN t.NULLABLE = 'Y' THEN '1' ELSE '0' END ) AS "is_null",
+            ( t.COLUMN_ID * 10 ) AS "columnSort",
+            decode(
+            t.DATA_TYPE,
+            'DATE',
+            t.DATA_TYPE || '(' || t.DATA_LENGTH || ')',
+            'VARCHAR2',
+            t.DATA_TYPE || '(' || t.DATA_LENGTH || ')',
+            'VARCHAR',
+            t.DATA_TYPE || '(' || t.DATA_LENGTH || ')',
+            'NVARCHAR2',
+            t.DATA_TYPE || '(' || t.DATA_LENGTH / 2 || ')',
+            'CHAR',
+            t.DATA_TYPE || '(' || t.DATA_LENGTH || ')',
+            'NUMBER',
+            t.DATA_TYPE || (
+            nvl2(
+            t.DATA_PRECISION,
+            nvl2(
+            decode( t.DATA_SCALE, 0, NULL, t.DATA_SCALE ),
+            '(' || t.DATA_PRECISION || ',' || t.DATA_SCALE || ')',
+            '(' || t.DATA_PRECISION || ')'
+            ),
+            '(18)'
+            )
+            ),
+            t.DATA_TYPE
+            ) AS "column_type"
+        FROM
+            user_tab_columns t,
+            user_col_comments c
+        WHERE
+            t.TABLE_NAME = c.table_name
+            AND t.COLUMN_NAME = c.column_name
+            AND t.TABLE_NAME = upper( #{tableName} )
+        ORDER BY
+            t.COLUMN_ID
+    </select>
+
+    <select id="selectParentTables" resultMap="BaseResultMap">
+        select a.id, a.table_name,  a.comments
+        from ht_gen_table a
+        where 1=1
+        and ( a.parent_table_name IS NULL OR a.parent_table_name = '' )
+        <if test="excludeName != null and excludeName !=''">
+            and a.table_name != #{excludeName}
+        </if>
+    </select>
+
+</mapper>
